@@ -12,11 +12,21 @@ pub const socket = @import("lib/socket.zig");
 
 // Export protocol modules
 pub const frame = @import("protocol/frame.zig");
+pub const control = @import("protocol/control.zig");
+pub const ethernet = @import("protocol/ethernet.zig");
+
+// Export network modules
+pub const taper = @import("network/taper.zig");
+pub const bridge = @import("network/bridge.zig");
 
 // Re-export commonly used types
 pub const Error = error_mod.Error;
 pub const Logger = logger.Logger;
 pub const Frame = frame.Frame;
+pub const ControlMessage = control.ControlMessage;
+pub const EtherFrame = ethernet.EtherFrame;
+pub const Taper = taper.Taper;
+pub const Bridge = bridge.Bridge;
 
 test {
     // Run all tests
