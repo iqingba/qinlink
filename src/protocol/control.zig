@@ -72,6 +72,43 @@ pub const ControlMessage = struct {
         
         return Frame.init(allocator, buffer);
     }
+    
+    /// Simple encode to buffer (without Frame wrapper)
+    pub fn encode(self: *const ControlMessage, buffer: []u8) ![]const u8 {
+        const cmd_str = self.command.toString();
+        const total_len = cmd_str.len + self.data.len;
+        
+        if (buffer.len < total_len) {
+            return error.BufferTooSmall;
+        }
+        
+        var idx: usize = 0;
+        for (cmd_str) |byte| {
+            buffer[idx] = byte;
+            idx += 1;
+        }
+        for (self.data) |byte| {
+            buffer[idx] = byte;
+            idx += 1;
+        }
+        
+        return buffer[0..total_len];
+    }
+    
+    /// Decode from raw buffer
+    pub fn decode(data: []const u8) !ControlMessage {
+        if (data.len < 6) {
+            return error.BufferTooSmall;
+        }
+        
+        const cmd = ControlCommand.fromString(data) orelse return error.InvalidCommand;
+        const msg_data = if (data.len > 6) data[6..] else &[_]u8{};
+        
+        return ControlMessage{
+            .command = cmd,
+            .data = msg_data,
+        };
+    }
 
     pub fn decodeFromFrame(f: *const Frame) ?ControlMessage {
         const cmd = ControlCommand.fromString(f.data) orelse return null;

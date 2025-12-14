@@ -1,27 +1,33 @@
+//! QinLink - Main entry point
+//! 
+//! This is a placeholder main. Use qinlink-access or qinlink-switch instead.
+
 const std = @import("std");
-const qinlink = @import("qinlink");
 
-pub fn main() !void {
-    // Prints to stderr, ignoring potential errors.
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
-    try qinlink.bufferedPrint();
-}
-
-test "simple test" {
-    const gpa = std.testing.allocator;
-    var list: std.ArrayList(i32) = .empty;
-    defer list.deinit(gpa); // Try commenting this out and see if zig detects the memory leak!
-    try list.append(gpa, 42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
-}
-
-test "fuzz example" {
-    const Context = struct {
-        fn testOne(context: @This(), input: []const u8) anyerror!void {
-            _ = context;
-            // Try passing `--fuzz` to `zig build test` and see if it manages to fail this test case!
-            try std.testing.expect(!std.mem.eql(u8, "canyoufindme", input));
-        }
-    };
-    try std.testing.fuzz(Context{}, Context.testOne, .{});
+pub fn main() void {
+    const msg =
+        \\QinLink - High Performance SD-WAN Solution
+        \\
+        \\Usage:
+        \\  qinlink-access [server_host] [server_port] [device_name]
+        \\    Start Access client (default: 127.0.0.1 10000 qinlink0)
+        \\
+        \\  qinlink-switch [port]
+        \\    Start Switch server (default port: 10000)
+        \\
+        \\Build commands:
+        \\  zig build                    # Build all executables
+        \\  zig build run-access         # Run Access client
+        \\  zig build run-switch         # Run Switch server
+        \\  zig build test               # Run tests
+        \\
+        \\Examples:
+        \\  ./zig-out/bin/qinlink-switch 10000
+        \\  ./zig-out/bin/qinlink-access 192.168.1.1 10000 tap0
+        \\
+        \\For more information, visit: https://github.com/iqingba/qinlink
+        \\
+    ;
+    
+    _ = std.posix.write(1, msg) catch unreachable;
 }

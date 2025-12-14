@@ -89,12 +89,45 @@ pub fn build(b: *std.Build) void {
     // by passing `--prefix` or `-p`.
     b.installArtifact(exe);
 
+    // Build Access client executable
+    const access_exe = b.addExecutable(.{
+        .name = "qinlink-access",
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/access_main.zig"),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+            .imports = &.{
+                .{ .name = "qinlink", .module = mod },
+            },
+        }),
+    });
+    b.installArtifact(access_exe);
+
+    // Build Switch server executable
+    const switch_exe = b.addExecutable(.{
+        .name = "qinlink-switch",
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/switch_main.zig"),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+            .imports = &.{
+                .{ .name = "qinlink", .module = mod },
+            },
+        }),
+    });
+    b.installArtifact(switch_exe);
+
     // This creates a top level step. Top level steps have a name and can be
     // invoked by name when running `zig build` (e.g. `zig build run`).
     // This will evaluate the `run` step rather than the default step.
     // For a top level step to actually do something, it must depend on other
     // steps (e.g. a Run step, as we will see in a moment).
     const run_step = b.step("run", "Run the app");
+    
+    const run_access_step = b.step("run-access", "Run the Access client");
+    const run_switch_step = b.step("run-switch", "Run the Switch server");
 
     // This creates a RunArtifact step in the build graph. A RunArtifact step
     // invokes an executable compiled by Zig. Steps will only be executed by the
@@ -104,15 +137,25 @@ pub fn build(b: *std.Build) void {
     // the user runs `zig build run`, so we create a dependency link.
     const run_cmd = b.addRunArtifact(exe);
     run_step.dependOn(&run_cmd.step);
+    
+    const run_access_cmd = b.addRunArtifact(access_exe);
+    run_access_step.dependOn(&run_access_cmd.step);
+    
+    const run_switch_cmd = b.addRunArtifact(switch_exe);
+    run_switch_step.dependOn(&run_switch_cmd.step);
 
     // By making the run step depend on the default step, it will be run from the
     // installation directory rather than directly from within the cache directory.
     run_cmd.step.dependOn(b.getInstallStep());
+    run_access_cmd.step.dependOn(b.getInstallStep());
+    run_switch_cmd.step.dependOn(b.getInstallStep());
 
     // This allows the user to pass arguments to the application in the build
     // command itself, like this: `zig build run -- arg1 arg2 etc`
     if (b.args) |args| {
         run_cmd.addArgs(args);
+        run_access_cmd.addArgs(args);
+        run_switch_cmd.addArgs(args);
     }
 
     // Creates an executable that will run `test` blocks from the provided module.

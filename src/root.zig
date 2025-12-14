@@ -8,6 +8,7 @@ pub const utils = @import("lib/utils.zig");
 pub const logger = @import("lib/logger.zig");
 pub const safe = @import("lib/safe.zig");
 pub const socket = @import("lib/socket.zig");
+pub const tcp = @import("lib/tcp.zig");
 
 // Export protocol modules
 pub const frame = @import("protocol/frame.zig");
@@ -29,6 +30,8 @@ pub const switch_mod = @import("switch/worker.zig");
 pub const Error = error_mod.Error;
 pub const Logger = logger.Logger;
 pub const Frame = frame.Frame;
+pub const TcpClient = tcp.TcpClient;
+pub const TcpServer = tcp.TcpServer;
 pub const AccessWorker = access.AccessWorker;
 pub const SwitchWorker = switch_mod.SwitchWorker;
 

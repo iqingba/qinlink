@@ -28,10 +28,11 @@ pub const Taper = struct {
 
     /// Open/create a TAP/TUN device (platform-specific)
     pub fn open(config: TapConfig) !Taper {
-        // Platform-specific implementation
-        // On Linux, this would open /dev/net/tun and use ioctl
-        // For now, return a placeholder
-        _ = config;
+        // Use platform-specific implementation
+        if (@import("builtin").os.tag == .linux) {
+            const tap_linux = @import("tap_linux.zig");
+            return tap_linux.openTap(config);
+        }
         return error.NotImplemented;
     }
 
@@ -52,8 +53,10 @@ pub const Taper = struct {
 
     /// Set device up
     pub fn setUp(self: *Taper) !void {
-        _ = self;
-        // Platform-specific: use ioctl SIOCSIFFLAGS
+        if (@import("builtin").os.tag == .linux) {
+            const tap_linux = @import("tap_linux.zig");
+            return tap_linux.setInterfaceUp(&self.name);
+        }
         return error.NotImplemented;
     }
 
@@ -65,16 +68,22 @@ pub const Taper = struct {
 
     /// Set IP address
     pub fn setAddr(self: *Taper, addr: []const u8, netmask: []const u8) !void {
-        _ = self;
-        _ = addr;
-        _ = netmask;
+        if (@import("builtin").os.tag == .linux) {
+            const tap_linux = @import("tap_linux.zig");
+            _ = netmask;
+            return tap_linux.setInterfaceAddr(&self.name, addr);
+        }
         return error.NotImplemented;
     }
 
     /// Set MTU
     pub fn setMtu(self: *Taper, mtu: u32) !void {
-        _ = self;
-        _ = mtu;
+        if (@import("builtin").os.tag == .linux) {
+            const tap_linux = @import("tap_linux.zig");
+            try tap_linux.setInterfaceMtu(&self.name, mtu);
+            self.mtu = mtu;
+            return;
+        }
         return error.NotImplemented;
     }
 };
