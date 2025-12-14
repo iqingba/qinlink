@@ -1,5 +1,4 @@
 //! QinLink Library Root
-//! This is the root module for the QinLink library
 
 const std = @import("std");
 
@@ -19,16 +18,20 @@ pub const ethernet = @import("protocol/ethernet.zig");
 pub const taper = @import("network/taper.zig");
 pub const bridge = @import("network/bridge.zig");
 
+// Export config modules
+pub const config = @import("config/config.zig");
+
+// Export application modules
+pub const access = @import("access/worker.zig");
+pub const switch_mod = @import("switch/worker.zig");
+
 // Re-export commonly used types
 pub const Error = error_mod.Error;
 pub const Logger = logger.Logger;
 pub const Frame = frame.Frame;
-pub const ControlMessage = control.ControlMessage;
-pub const EtherFrame = ethernet.EtherFrame;
-pub const Taper = taper.Taper;
-pub const Bridge = bridge.Bridge;
+pub const AccessWorker = access.AccessWorker;
+pub const SwitchWorker = switch_mod.SwitchWorker;
 
 test {
-    // Run all tests
     std.testing.refAllDecls(@This());
 }
