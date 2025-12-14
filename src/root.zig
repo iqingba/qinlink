@@ -1,23 +1,24 @@
-//! By convention, root.zig is the root source file when making a library.
+//! QinLink Library Root
+//! This is the root module for the QinLink library
+
 const std = @import("std");
 
-pub fn bufferedPrint() !void {
-    // Stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    var stdout_buffer: [1024]u8 = undefined;
-    var stdout_writer = std.fs.File.stdout().writer(&stdout_buffer);
-    const stdout = &stdout_writer.interface;
+// Export library modules
+pub const error_mod = @import("lib/error.zig");
+pub const utils = @import("lib/utils.zig");
+pub const logger = @import("lib/logger.zig");
+pub const safe = @import("lib/safe.zig");
+pub const socket = @import("lib/socket.zig");
 
-    try stdout.print("Run `zig build test` to run the tests.\n", .{});
+// Export protocol modules
+pub const frame = @import("protocol/frame.zig");
 
-    try stdout.flush(); // Don't forget to flush!
-}
+// Re-export commonly used types
+pub const Error = error_mod.Error;
+pub const Logger = logger.Logger;
+pub const Frame = frame.Frame;
 
-pub fn add(a: i32, b: i32) i32 {
-    return a + b;
-}
-
-test "basic add functionality" {
-    try std.testing.expect(add(3, 7) == 10);
+test {
+    // Run all tests
+    std.testing.refAllDecls(@This());
 }
